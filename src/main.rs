@@ -8,6 +8,7 @@ fn hello() -> &'static str {
     "Hello, world!"
 }
 
-fn main() {
-    let _ = rocket::ignite().mount("/", routes!(hello)).launch();
+#[launch]
+fn rocket() -> _ {
+    rocket::build().mount("/", routes!(hello))
 }
