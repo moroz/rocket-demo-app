@@ -1,12 +1,14 @@
+use crate::models::DbConn;
 use crate::models::Task;
+use crate::schema::tasks::dsl::*;
+use diesel::RunQueryDsl;
 use rocket::serde::json::Json;
 
 #[get("/")]
-pub fn list_tasks() -> Json<Vec<Task>> {
-    let tasks = vec![
-        Task::new(1, "Water the flowers", None),
-        Task::new(2, "Feed the dog", Some("Description")),
-    ];
-
-    Json(tasks)
+pub async fn list_tasks(conn: DbConn) -> Result<Json<Vec<Task>>, String> {
+    conn.run(|c| match tasks.load::<Task>(c) {
+        Ok(list) => Ok(Json(list)),
+        _ => Err(String::from("No can do")),
+    })
+    .await
 }
