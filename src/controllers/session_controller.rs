@@ -11,11 +11,17 @@ pub struct NewSessionParams {
 
 #[post("/", data = "<params>")]
 pub async fn sign_in(conn: DbConn, params: Json<NewSessionParams>) -> Result<Json<User>, String> {
-    conn.run(move |c| {
-        match User::authenticate_by_email_password(&params.email[..], &params.password[..], c) {
-            Some(user) => Ok(Json(user)),
-            None => Err(String::from("NO can do")),
-        }
-    })
-    .await
+    let password = String::from(&params.password);
+
+    let res = conn
+        .run(move |c| User::get_by_email(&params.email[..], c))
+        .await;
+
+    match res {
+        Some(user) => match user.check_pass(password).await {
+            Ok(true) => Ok(Json(user)),
+            _ => Err(String::from("NO can do")),
+        },
+        _ => Err(String::from("NO can do")),
+    }
 }

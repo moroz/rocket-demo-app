@@ -15,25 +15,18 @@ pub struct User {
 }
 
 impl User {
-    pub fn check_pass(&self, password: &str) -> BcryptResult<bool> {
-        bcrypt::verify(password, &self.password_hash)
-    }
-
-    pub fn authenticate_by_email_password(
-        user_email: &str,
-        password: &str,
-        conn: &PgConnection,
-    ) -> Option<Self> {
-        let user = users
+    pub fn get_by_email(user_email: &str, conn: &PgConnection) -> Option<Self> {
+        users
             .filter(email.eq(CiString::from(user_email)))
             .first::<User>(conn)
-            .optional();
-        match user {
-            Ok(Some(user)) => match user.check_pass(password) {
-                Ok(true) => Some(user),
-                _ => None,
-            },
-            _ => None,
-        }
+            .optional()
+            .unwrap()
+    }
+
+    pub async fn check_pass(&self, password: String) -> BcryptResult<bool> {
+        let hash = String::from(&self.password_hash);
+        tokio::task::spawn_blocking(move || bcrypt::verify(password, &hash[..]))
+            .await
+            .unwrap()
     }
 }

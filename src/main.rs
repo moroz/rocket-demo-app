@@ -6,6 +6,7 @@ extern crate rocket_sync_db_pools;
 extern crate diesel;
 extern crate bcrypt;
 extern crate diesel_citext;
+extern crate tokio;
 
 mod controllers;
 mod models;
