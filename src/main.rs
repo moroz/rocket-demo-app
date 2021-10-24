@@ -4,6 +4,8 @@ extern crate rocket;
 extern crate rocket_sync_db_pools;
 #[macro_use]
 extern crate diesel;
+extern crate bcrypt;
+extern crate diesel_citext;
 
 mod controllers;
 mod models;
