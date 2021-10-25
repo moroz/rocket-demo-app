@@ -1,3 +1,4 @@
+use crate::models::token::SessionPayload;
 use crate::schema::users::dsl::*;
 use bcrypt::BcryptResult;
 use diesel::prelude::*;
@@ -28,5 +29,11 @@ impl User {
         tokio::task::spawn_blocking(move || bcrypt::verify(password, &hash[..]))
             .await
             .unwrap()
+    }
+}
+
+impl From<&User> for SessionPayload {
+    fn from(user: &User) -> Self {
+        Self { sub: user.id }
     }
 }
